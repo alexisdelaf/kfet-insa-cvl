@@ -1,0 +1,367 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K-fet</title>
+  <script type = "module" src = "register.js" defer>  </script>
+</head>
+<script type="module">
+  // Import Firebase depuis le CDN
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  // 🔥 Ton code de configuration (copié depuis Firebase)
+  const firebaseConfig = {
+    apiKey: "AIzaSyDT8ZotgSrZtNeseUm08BSXTiYsc5BIX3Y",
+    authDomain: "kfet-insacvl.firebaseapp.com",
+    projectId: "kfet-insacvl",
+    storageBucket: "kfet-insacvl.firebasestorage.app",
+    messagingSenderId: "668484950259",
+    appId: "1:668484950259:web:ddd6a32088d53b26cebf86",
+    measurementId: "G-8RRXJ46Y94"
+  };
+
+  // 🔧 Initialisation Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ⚙️ Exemple : fonction pour envoyer une commande
+  async function envoyerCommande(nom, produit) {
+    await addDoc(collection(db, "commandes"), {
+      nom: nom,
+      produit: produit,
+      date: new Date().toISOString()
+    });
+    alert("Commande envoyée !");
+  }
+
+  // ⚙️ Exemple : écouter toutes les commandes en temps réel
+  onSnapshot(collection(db, "commandes"), (snapshot) => {
+    const liste = document.getElementById("listeCommandes");
+    liste.innerHTML = "";
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const item = document.createElement("li");
+      item.textContent = `${data.nom} → ${data.produit} (${new Date(data.date).toLocaleTimeString()})`;
+      liste.appendChild(item);
+    });
+  });
+</script>
+
+<body>
+<h2>Commandes Cafette</h2>
+<ul id="listeCommandes"></ul>
+
+<!-- Exemple de bouton pour tester -->
+<button onclick="envoyerCommande('Alexis', 'Pizza 4 fromages')">
+  Envoyer commande test
+</button>
+
+</body>
+</html>
+<!doctype html>
+<html lang="fr">
+<head>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kfet INSA CVL — Commander</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kfetBg: '#ffd0be',
+            kfetAccent: '#fc8207'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .card {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .circle {
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .order-row {
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+    }
+  </style>
+</head>
+
+<body class="bg-kfetBg text-gray-800 min-h-screen">
+  <!-- HEADER -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <img src="logo.png" alt="Kfet logo" class="w-12 h-12 rounded-full object-cover" />
+        <div>
+          <h1 class="text-xl font-semibold">Kfet INSA CVL</h1>
+          <p class="text-sm text-gray-500">Commander</p>
+        </div>
+      </a>
+      <div class="flex gap-3 items-center">
+        <a href="menu.pdf" target="_blank"
+           class="border border-kfetAccent text-kfetAccent px-4 py-2 rounded-full hover:bg-kfetAccent hover:text-white transition">
+          Voir le menu (PDF)
+        </a>
+        <a href="menu.html" class="text-sm text-gray-700 hover:underline">Menu</a>
+        <a href="stats.html" class="text-sm text-gray-700 hover:underline">Stats</a>
+        <a href="admin.html" class="text-sm text-gray-700 hover:underline">Admin</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-4 space-y-10">
+    <!-- Date du jour -->
+    <div class="card p-4 flex items-center justify-between mb-6">
+      <div>
+        <div id="todayDate" class="text-lg font-medium"></div>
+        <div class="text-sm text-gray-500">Date du jour</div>
+      </div>
+      <div class="text-right">
+        <div id="dayCount" class="text-2xl font-semibold">0</div>
+        <div class="text-sm text-gray-500">commande(s) aujourd'hui</div>
+      </div>
+    </div>
+
+    <!-- GRID 1 : Commandes midi -->
+    <section>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Formulaire repas midi -->
+        <div class="card p-4">
+          <h2 class="text-xl font-semibold mb-2">Formulaire de commande — Midi</h2>
+          <form id="orderForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Pseudo</label>
+              <input id="pseudo" type="text" maxlength="30" required
+                     class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-kfetAccent"
+                     placeholder="Ton pseudo">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Entrée</label>
+              <select id="entree" class="w-full border rounded-md px-3 py-2">
+                <option value="Aucun">Aucun</option>
+                <option>Taboulé</option>
+                <option>Carottes râpées</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Plat</label>
+              <select id="plat" required class="w-full border rounded-md px-3 py-2">
+                <option value="" disabled selected>Choisir un plat</option>
+                <option value="Aucun">Aucun</option>
+                <optgroup label="Salades">
+                  <option>Truite / Mozza</option>
+                  <option>Végétarienne / Mozza</option>
+                  <option>Chèvre</option>
+                </optgroup>
+
+                <optgroup label="Pizzas">
+                  <option>Pizza Bolognaise</option>
+                  <option>Pizza 3 Fromages</option>
+                  <option>Pizza Royale</option>
+                  <option>Pizza Mozzarella</option>
+                  <option>Pizza Jambon Fromage</option>
+                  <option>Pizza Chèvre</option>
+                  <option>Pizza Poulet</option>
+                  <option>Pizza Saumon</option>
+                </optgroup>
+
+                <optgroup label="Paninis">
+                  <option>Panini Chèvre / Miel</option>
+                  <option>Panini Poulet / Curry</option>
+                  <option>Panini Jambon / Emmental</option>
+                  <option>Panini Jambon / Chèvre</option>
+                  <option>Panini Poulet / Cheddar</option>
+                  <option>Panini Truite / Mozza</option>
+                  <option>Panini Pesto / Tomate / Mozza</option>
+                  <option>Panini Nutella (pauses) </option>
+                </optgroup>
+
+                <optgroup label="Pasta Box">
+                  <option>Bolognaise</option>
+                  <option>Épinard / Ricotta</option>
+                </optgroup>
+
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Dessert</label>
+              <select id="dessert" class="w-full border rounded-md px-3 py-2">
+                <option value="Aucun">Aucun</option>
+                <option>Kinder Bueno</option>
+                <option>Kinder Bueno White</option>
+                <option>Lion</option>
+                <option>Mars</option>
+                <option>M&Ms</option>
+                <option>KitKat</option>
+                <option>Twix</option>
+                <option>Snickers</option>
+                <option>Compote Pomme</option>
+                <option>Compote Pomme Banane</option>
+                <option>Pomme</option>
+                <option>Yaourt Nature sucré</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Boisson</label>
+              <select id="boisson" class="w-full border rounded-md px-3 py-2">
+                <option value="Aucune">Aucune</option>
+                <option>Coca-Cola</option>
+                <option>Coca-Cola Zéro</option>
+                <option>Coca-Cola Cherry</option>
+                <option>Orangina</option>
+                <option>Schweppes Agrumes</option>
+                <option>Fanta Citron</option>
+                <option>Sprite</option>
+                <option>Ice-Tea</option>
+                <option>Oasis Tropical</option>
+                <option>Capri-Sun</option>
+                <option>San Pellegrino</option>
+                <option>Eau 50cl</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Commentaire</label>
+              <textarea id="comment" rows="3" class="w-full border rounded-md px-3 py-2"
+                        placeholder="Allergies, précisions..."></textarea>
+            </div>
+
+            <div class="flex gap-3">
+              <button type="submit" class="bg-kfetAccent text-white px-4 py-2 rounded-full hover:opacity-90 transition">Valider</button>
+              <button type="button" id="clearBtn" class="text-sm text-gray-600 hover:underline">Effacer</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Commandes du midi -->
+        <div class="card p-4">
+          <h2 class="text-xl font-semibold mb-2">Commandes midi du jour</h2>
+          <p class="text-sm text-gray-500 mb-3">Pseudo + heure</p>
+          <div id="ordersList" class="space-y-2"></div>
+          <div class="text-sm text-gray-500 mt-4" id="ordersSummary">0 commande(s)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRID 2 : Commandes Panini Nutella -->
+    <section>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Formulaire Panini Nutella -->
+        <div class="card p-4">
+          <h2 class="text-xl font-semibold mb-3">🥐 Commander un Panini Nutella</h2>
+          <form id="nutellaForm" class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">Pseudo</label>
+              <input id="nutellaPseudo" type="text" required
+                     class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-kfetAccent"
+                     placeholder="Ton pseudo" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Boisson</label>
+              <select id="nutellaDrink" class="w-full border rounded-md px-3 py-2">
+                <option value="Aucune">Aucune</option>
+                <option>Coca-Cola</option>
+                <option>Coca-Cola Zéro</option>
+                <option>Coca-Cola Cherry</option>
+                <option>Lipton Ice-Tea</option>
+                <option>Oasis Tropical</option>
+                <option>Orangina</option>
+                <option>Fanta Citron</option>
+                <option>Sprite</option>
+                <option>Capri-Sun</option>
+                <option>San Pellegrino</option>
+                <option>Cristalline</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Commentaire</label>
+              <textarea id="nutellaComment" rows="2"
+                        class="w-full border rounded-md px-3 py-2"
+                        placeholder="Ex : sans serviette, à emporter..."></textarea>
+            </div>
+
+            <button type="submit"
+                    class="bg-kfetAccent text-white px-4 py-2 rounded-full hover:opacity-90 transition">
+              Valider Panini Nutella
+            </button>
+          </form>
+        </div>
+
+        <!-- Commandes Panini Nutella -->
+        <div class="card p-4">
+          <h2 class="text-xl font-semibold mb-2">Commandes Panini Nutella du jour</h2>
+          <p class="text-sm text-gray-500 mb-3">Pseudo + heure</p>
+          <div id="nutellaOrdersList" class="space-y-2"></div>
+          <div class="text-sm text-gray-500 mt-4" id="nutellaOrdersSummary">0 commande(s)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Instagram -->
+    <div class="mt-8 text-center">
+      <a href="https://www.instagram.com/kfet_insacvl"
+         target="_blank"
+         class="text-kfetAccent font-medium hover:underline">
+         📸 Suis-nous sur Instagram : @kfet_insacvl
+      </a>
+    </div>
+  </main>
+    
+
+  <footer class="max-w-6xl mx-auto p-4 text-center text-sm text-gray-500">
+    Données stockées dans localStorage — v3.2 Kfet INSA CVL
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+<!--/// // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDT8ZotgSrZtNeseUm08BSXTiYsc5BIX3Y",
+  authDomain: "kfet-insacvl.firebaseapp.com",
+  projectId: "kfet-insacvl",
+  storageBucket: "kfet-insacvl.firebasestorage.app",
+  messagingSenderId: "668484950259",
+  appId: "1:668484950259:web:ddd6a32088d53b26cebf86",
+  measurementId: "G-8RRXJ46Y94"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);-->
+

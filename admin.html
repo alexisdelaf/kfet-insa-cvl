@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kfet INSA CVL — Admin</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kfetBg: '#ffd0be',
+            kfetAccent: '#fc8207',
+            softRed: '#f87171' /* smoother red for pizza */
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.6rem; border-bottom: 1px solid rgba(0,0,0,0.05); vertical-align: top; }
+    th { text-align: left; font-weight: 600; color: #444; }
+    .pseudo-pill { color: white; padding: 0.25rem 0.6rem; border-radius: 0.375rem; font-weight:600; display:inline-block; }
+    .btn-sm { padding: 0.3rem 0.6rem; border-radius: 0.375rem; font-size: 0.85rem; font-weight: 500; cursor:pointer; }
+  </style>
+</head>
+
+<body class="bg-kfetBg text-gray-800 min-h-screen">
+  <!-- HEADER -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-3">
+        <img src="logo.png" alt="Kfet logo" class="w-10 h-10 rounded-full object-cover" />
+        <div><h1 class="text-lg font-semibold">Admin — Kfet INSA CVL</h1></div>
+      </a>
+      <div class="flex gap-3">
+        <a href="archive.html" class="text-sm text-gray-700 hover:underline">Voir les commandes archivées</a>
+        <a href="index.html" class="text-sm text-gray-700 hover:underline">Retour à la page principale</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="max-w-6xl mx-auto p-4">
+    <div class="bg-white rounded-md shadow p-4 mb-4 flex items-center justify-between">
+      <h2 class="text-xl font-semibold">Commandes en cours</h2>
+      <button id="reloadBtn" class="btn-sm bg-kfetAccent text-white hover:opacity-90">🔄 Actualiser</button>
+    </div>
+
+    <div class="bg-white rounded-md shadow p-4 overflow-x-auto">
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Pseudo</th>
+            <th>Date / Heure</th>
+            <th>Entrée</th>
+            <th>Plat</th>
+            <th>Dessert</th>
+            <th>Boisson</th>
+            <th>Commentaire</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="max-w-6xl mx-auto p-4 text-center text-sm text-gray-500">
+    Admin — commandes en cours (localStorage)
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Basic access protection
+    const ADMIN_PASS = "kfetadmin";
+    const ok = prompt("Mot de passe admin ?");
+    if (ok !== ADMIN_PASS) {
+      alert("Accès refusé !");
+      window.location.href = "index.html";
+    }
+
+    const tableBody = document.querySelector("#ordersTable tbody");
+
+    // Map plat -> pseudo color
+    function platColor(plat) {
+        plat = (plat || "").toLowerCase();
+        if (plat.includes("salad")) return "#16a34a";
+        if (plat.includes("nutella")) return "#8b5e3c"; // brown for Nutella
+        if (plat.includes("panini")) return "#facc15"; // yellow for other paninis
+
+        if (plat.includes("pizza")) return "#f87171"; // soft red
+        if (plat.includes("pasta") || plat.includes("lasag")) return "#8b5e3c";
+        return "#6b7280";
+    }
+
+    // Display all active orders
+    function renderOrders() {
+      const orders = kfet.loadOrders();
+      tableBody.innerHTML = "";
+
+      if (orders.length === 0) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="8" class="text-center text-gray-500 py-6">Aucune commande en cours.</td>`;
+        tableBody.appendChild(tr);
+        return;
+      }
+
+      orders.forEach((o) => {
+        const tr = document.createElement("tr");
+
+        // Pseudo + colored background
+        const pseudoTd = document.createElement("td");
+        const span = document.createElement("span");
+        span.className = "pseudo-pill";
+        span.style.background = platColor(o.plat);
+        span.textContent = o.pseudo;
+        pseudoTd.appendChild(span);
+        tr.appendChild(pseudoTd);
+
+        const dt = new Date(o.datetimeISO);
+        tr.innerHTML += `
+          <td>${dt.toLocaleString("fr-FR", {hour: '2-digit', minute:'2-digit', day:'2-digit', month:'short'})}</td>
+          <td>${o.entree || ""}</td>
+          <td>${o.plat || ""}</td>
+          <td>${o.dessert || ""}</td>
+          <td>${o.boisson || ""}</td>
+          <td>${o.comment || ""}</td>
+        `;
+
+        // Actions
+        const actionsTd = document.createElement("td");
+        const btnDone = document.createElement("button");
+        btnDone.className = "btn-sm bg-green-500 text-white mr-1";
+        btnDone.textContent = "✅ Terminée";
+        btnDone.onclick = () => {
+          kfet.archiveOrder(o.id, "terminée");
+          renderOrders();
+        };
+
+        const btnCancel = document.createElement("button");
+        btnCancel.className = "btn-sm bg-red-500 text-white mr-1";
+        btnCancel.textContent = "❌ Annulée";
+        btnCancel.onclick = () => {
+          kfet.archiveOrder(o.id, "annulée");
+          renderOrders();
+        };
+
+        const btnNoShow = document.createElement("button");
+        btnNoShow.className = "btn-sm bg-gray-600 text-white";
+        btnNoShow.textContent = "🚫 Jamais venue";
+        btnNoShow.onclick = () => {
+          kfet.archiveOrder(o.id, "jamais venue");
+          renderOrders();
+        };
+
+        actionsTd.appendChild(btnDone);
+        actionsTd.appendChild(btnCancel);
+        actionsTd.appendChild(btnNoShow);
+        tr.appendChild(actionsTd);
+
+        tableBody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("reloadBtn").addEventListener("click", renderOrders);
+    renderOrders();
+  </script>
+</body>
+</html>
+
+
+<h2>Gestion du menu</h2>
+<label>Catégorie :
+  <select id="categorie">
+    <option value="plats">Plat</option>
+    <option value="boissons">Boisson</option>
+    <option value="desserts">Dessert</option>
+  </select>
+</label>
+<br>
+<label>Nom : <input id="nom" /></label>
+<br>
+<label>Prix (€) : <input id="prix" type="number" step="0.01" /></label>
+<br>
+<button id="ajouter">Ajouter au menu</button>
+
+<ul id="listeMenu"></ul>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDT8ZotgSrZtNeseUm08BSXTiYsc5BIX3Y",
+    authDomain: "kfet-insacvl.firebaseapp.com",
+    projectId: "kfet-insacvl",
+    storageBucket: "kfet-insacvl.firebasestorage.app",
+    messagingSenderId: "668484950259",
+    appId: "1:668484950259:web:ddd6a32088d53b26cebf86",
+    measurementId: "G-8RRXJ46Y94"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const btnAjouter = document.getElementById("ajouter");
+  const listeMenu = document.getElementById("listeMenu");
+
+  btnAjouter.onclick = async () => {
+    const cat = document.getElementById("categorie").value;
+    const nom = document.getElementById("nom").value;
+    const prix = parseFloat(document.getElementById("prix").value);
+    if (!nom || !prix) return alert("Remplis tous les champs !");
+    await addDoc(collection(db, `menu/${cat}/items`), { nom, prix });
+    alert("Ajouté !");
+  };
+
+  // Affichage en temps réel
+  ["plats", "boissons", "desserts"].forEach(cat => {
+    onSnapshot(collection(db, `menu/${cat}/items`), (snap) => {
+      snap.docChanges().forEach(change => {
+        const data = change.doc.data();
+        if (change.type === "added") {
+          const li = document.createElement("li");
+          li.textContent = `${cat.toUpperCase()} - ${data.nom} (${data.prix}€)`;
+          listeMenu.appendChild(li);
+        }
+      });
+    });
+  });
+</script>
+

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kfet INSA CVL — Menu</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    /* Tailwind theme config for Kfet colors */
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kfetBg: '#ffd0be',
+            kfetAccent: '#fc8207'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* small custom styles */
+    .card {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .section-title {
+      letter-spacing: -0.01em;
+    }
+    .menu-list li { margin: .35rem 0; }
+    /* responsive table-ish layout for larger lists */
+    .grid-menu { gap: 1rem; }
+  </style>
+</head>
+<body class="bg-kfetBg min-h-screen text-gray-800">
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <!-- Logo clickable returns to index -->
+      <a href="index.html" class="flex items-center gap-3">
+        <img src="logo.png" alt="Kfet logo" class="w-12 h-12 rounded-full object-cover" />
+        <div>
+          <h1 class="text-2xl font-semibold text-kfetAccent">Kfet INSA CVL</h1>
+          <p class="text-sm text-gray-600">Menu de la semaine</p>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-3">
+        <a href="menu.pdf" target="_blank"
+           class="px-4 py-2 rounded-full border border-kfetAccent text-kfetAccent hover:bg-kfetAccent hover:text-white transition">
+          Voir le menu (PDF)
+        </a>
+        <a href="index.html" class="text-sm text-gray-600 hover:underline">Retour Commander</a>
+        <a href="stats.html" class="text-sm text-gray-600 hover:underline">Stats</a>
+        <a href="admin.html" class="text-sm text-gray-600 hover:underline">Admin</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto p-6">
+    <!-- Intro -->
+    <section class="card p-6 mb-6">
+      <h2 class="text-xl font-semibold section-title">Menu complet (items disponibles)</h2>
+      <p class="text-sm text-gray-600 mt-2">Ci-dessous la liste complète des entrées, plats, desserts, snacks et boissons proposés à la Kfet (extrait du PDF).</p>
+    </section>
+
+    <!-- Menu grid -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-menu">
+      <!-- Entrées -->
+      <div class="card p-4">
+        <!-- English comment: Entrées list -->
+        <h3 class="text-lg font-semibold mb-2">Entrées</h3>
+        <ul class="menu-list text-gray-700 list-disc pl-5">
+          <li>Taboulé</li>
+          <li>Carottes rapées</li>
+          <li>Chèvre</li>
+        </ul>
+      </div>
+
+      <!-- Pizzas -->
+      <div class="card p-4">
+        <!-- English comment: Pizzas list -->
+        <h3 class="text-lg font-semibold mb-2">Plats — Pizzas</h3>
+        <ul class="menu-list text-gray-700 list-disc pl-5">
+          <li>Pizza Bolognaise</li>
+          <li>Pizza 3 Fromages</li>
+          <li>Pizza Royale</li>
+          <li>Pizza Mozzarella</li>
+          <li>Pizza Jambon Fromage</li>
+          <li>Pizza Chèvre</li>
+          <li>Pizza Poulet</li>
+          <li>Pizza Saumon</li>
+        </ul>
+      </div>
+
+      <!-- Paninis -->
+      <div class="card p-4">
+        <!-- English comment: Panini list -->
+        <h3 class="text-lg font-semibold mb-2">Plats — Paninis</h3>
+        <ul class="menu-list text-gray-700 list-disc pl-5">
+          <li>Panini Chèvre / Miel</li>
+          <li>Panini Poulet / Curry</li>
+          <li>Panini Jambon / Emmental</li>
+          <li>Panini Jambon / Chèvre</li>
+          <li>Panini Poulet / Cheddar</li>
+          <li>Panini Truite / Mozza</li>
+          <li>Panini Pesto / Tomate / Mozza</li>
+          <li>Panini Nutella (pauses majoritairement)</li>
+        </ul>
+      </div>
+
+      <!-- Autres plats -->
+      <div class="card p-4">
+        <!-- English comment: Other mains -->
+        <h3 class="text-lg font-semibold mb-2">Salade / Pasta Box</h3>
+        <ul class="menu-list text-gray-700 list-disc pl-5">
+          <li>Truite / Mozza</li>
+          <li>Végétarienne / Mozza</li>
+          <li>Chèvre</li>
+          <li>Bolognaise</li>
+          <li>Epinard / Ricotta</li>
+        </ul>
+      </div>
+
+      <!-- Desserts & Snacks -->
+      <div class="card p-4">
+        <!-- English comment: Snacks and desserts -->
+        <h3 class="text-lg font-semibold mb-2">Snacks / Desserts</h3>
+        <ul class="menu-list text-gray-700 list-disc pl-5">
+          <li>Kinder Bueno</li>
+          <li>Kinder Bueno White</li>
+          <li>Lion</li>
+          <li>Mars</li>
+          <li>M&Ms</li>
+          <li>KitKat</li>
+          <li>Twix</li>
+          <li>Snickers</li>
+          <li>Compote Pomme</li>
+          <li>Compote Pomme Banane</li>
+          <li>Pomme</li>
+        </ul>
+      </div>
+
+      <!-- Boissons -->
+      <div class="card p-4">
+        <!-- English comment: Drinks -->
+        <h3 class="text-lg font-semibold mb-2">Boissons</h3>
+        <ul class="menu-list text-gray-700 list-disc pl-5">
+            <!-- Boissons gazeuses -->
+            <li>Coca-Cola</li>
+            <li>Coca-Cola Zéro</li>
+            <li>Coca-Cola Cherry</li>
+            <li>Orangina</li>
+            <li>Schweppes Agrumes</li>
+            <li>Fanta Citron</li>
+            <li>Sprite</li>
+
+            <!-- Boissons non gazeuses / thés / jus -->
+            <li>Ice-Tea</li>
+            <li>Oasis Tropical</li>
+            <li>Capri-Sun</li>
+
+            <!-- Boissons saines -->
+            <li>San Pellegrino</li>
+            <li>Eau 50cl</li>
+</ul>
+        </ul>
+      </div>
+    </section>
+
+  <footer class="max-w-6xl mx-auto p-4 text-center text-sm text-gray-600">
+    Menu extrait du PDF fourni • Kfet INSA CVL
+  </footer>
+</body>
+</html>
